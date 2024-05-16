@@ -5,8 +5,6 @@ import base64
 import aiohttp
 import asyncio
 
-from llmapi_cli.llmclient import LLMClient
-
 from pydantic import BaseModel
 from fastapi import FastAPI, Request, BackgroundTasks
 app = FastAPI()
@@ -190,20 +188,7 @@ async def reply_message(input: dict):
         users_info[user_id].bot = prompt.split(' ')[1]
         reply = '设置机器人为' + users_info[user_id].bot + '\n'
     else:
-        if users_info[user_id].client is None:
-            users_info[user_id].client = LLMClient(
-                apikey=users_info[user_id].llmapi_key,
-                host=users_info[user_id].llmapi_host,
-                bot_type=users_info[user_id].bot
-            )
-            if not await users_info[user_id].client.start_session():
-                users_info[user_id].client = None
-                reply = "启动会话失败\n" + help_msg
-        if users_info[user_id].client is not None:
-            success, reply = await users_info[user_id].client.ask(
-                prompt=prompt, timeout=300)
-            if success != 0:
-                reply = "请求回复失败"
+        reply = "default"
     await sender.send(reply, input["event"]["message"]["message_id"])
 
 
